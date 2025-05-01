@@ -33,9 +33,19 @@ for (let i = 0; i < arrResult.length; i++) {
 const objResult = nativeNode.returnObject();
 console.log("obj name is ",objResult["name"]);
 for (let j = 0; j < objResult["user_hobby"].length; j++) {
-    console.log("user hobby ",objResult["user_hobby"][j]);
+    console.log("user ho",objResult["user_hobby"][j]);
 }
 
 const addFunction = nativeNode.returnFunction();
 const addResult = addFunction(1,2)
 console.log("addResult ",addResult)
+
+nativeNode.readArray([1,2,3,"4","5","6"])
+
+nativeNode.readObject({name:"jack",age:10})
+
+nativeNode.readFunction((...args:any[])=>{
+    args.forEach(item=>{
+        console.log(item);
+    })
+})

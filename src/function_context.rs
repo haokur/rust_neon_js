@@ -27,10 +27,62 @@ pub fn print_args(mut cx: FunctionContext) -> JsResult<JsString> {
 }
 
 // object,ar,callback类型的使用
-pub fn use_object(mut cx: FunctionContext) -> JsResult<JsObject> {
-    let obj = cx.argument::<JsObject>(0)?;
+pub fn read_array(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let js_array = cx.argument::<JsArray>(0)?;
+    let len = js_array.len(&mut cx);
 
-    Ok(obj)
+    for i in 0..len {
+        let element: Handle<JsValue> = js_array.get(&mut cx, i)?; // 👈 明确类型
+
+        if let Ok(js_str) = element.downcast::<JsString, _>(&mut cx) {
+            println!("String at {}: {}", i, js_str.value(&mut cx));
+        } else if let Ok(js_num) = element.downcast::<JsNumber, _>(&mut cx) {
+            println!("Number at {}: {}", i, js_num.value(&mut cx));
+        } else {
+            println!("Other type at {}", i);
+        }
+    }
+
+    Ok(cx.undefined())
+}
+
+pub fn read_object(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let obj = cx.argument::<JsObject>(0)?;
+    let name_handle: Handle<JsValue> = obj.get(&mut cx, "name")?;
+    let name = name_handle
+        .downcast::<JsString, _>(&mut cx)
+        .unwrap()
+        .value(&mut cx);
+
+    let age_handle: Handle<JsValue> = obj.get(&mut cx, "age")?;
+    let age = age_handle
+        .downcast::<JsNumber, _>(&mut cx)
+        .unwrap()
+        .value(&mut cx);
+
+    println!("name is {}, age is {}", name, age);
+    Ok(cx.undefined())
+}
+
+// 读取传入的函数并使用
+fn is_function<'a>(cx: &mut FunctionContext<'a>, value: Handle<'a, JsValue>) -> bool {
+    value.downcast::<JsFunction, _>(cx).is_ok()
+}
+pub fn read_function(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let arg0 = cx.argument::<JsFunction>(0)?;
+    if arg0.downcast::<JsFunction, _>(&mut cx).is_ok() {
+        println!("Function");
+        let js_func = arg0.downcast::<JsFunction, _>(&mut cx).unwrap();
+        let arg1 = cx.number(1).upcast::<JsValue>();
+        let arg2 = cx.number(2).upcast::<JsValue>();
+        let undef = cx.undefined();
+        js_func
+            .call(&mut cx, undef, &[arg1, arg2])
+            .expect("TODO: panic message");
+    } else {
+        println!("Not Function");
+    }
+    Ok(cx.undefined())
 }
 
 /// 返回值
@@ -114,7 +166,6 @@ pub fn return_object(mut cx: FunctionContext) -> JsResult<JsObject> {
 
     Ok(obj)
 }
-
 
 // 返回方法
 fn rust_add(mut cx: FunctionContext) -> JsResult<JsNumber> {

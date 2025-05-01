@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.node",
   "scripts": {
-    "test": "ts-node test.ts",
+    "test": "npm run build && ts-node test.ts",
     "cargo-build": "cargo build --message-format=json-render-diagnostics > cargo.log",
     "cross-build": "cross build --message-format=json-render-diagnostics > cross.log",
     "postcargo-build": "neon dist < cargo.log",
