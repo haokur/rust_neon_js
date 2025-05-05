@@ -1,15 +1,22 @@
 mod function_context;
 mod helper;
+mod utils;
 
 use crate::function_context::*;
 use neon::prelude::*;
+
+fn log(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let logger_content = cx.argument::<JsString>(0)?.value(&mut cx) as String;
+    utils::logger::logger_execute(logger_content);
+    Ok(cx.undefined())
+}
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("hello", hello)?;
     cx.export_function("printArgs", print_args)?;
-    cx.export_function("readArray",read_array)?;
-    cx.export_function("readObject",read_object)?;
+    cx.export_function("readArray", read_array)?;
+    cx.export_function("readObject", read_object)?;
     cx.export_function("readFunction", read_function)?;
 
     cx.export_function("returnString", return_string)?;
