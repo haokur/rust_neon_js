@@ -3,11 +3,19 @@ mod helper;
 mod utils;
 
 use crate::function_context::*;
+use crate::utils::trace::logger_execute;
 use neon::prelude::*;
 
 fn log(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let logger_content = cx.argument::<JsString>(0)?.value(&mut cx) as String;
     utils::logger::logger_execute(logger_content);
+    Ok(cx.undefined())
+}
+
+pub fn print(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let module = cx.argument::<JsString>(0)?.value(&mut cx);
+    let content = cx.argument::<JsString>(1)?.value(&mut cx);
+    logger_execute(module, content);
     Ok(cx.undefined())
 }
 
@@ -28,6 +36,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("returnArray", return_array)?;
     cx.export_function("returnObject", return_object)?;
     cx.export_function("returnFunction", return_function)?;
+
+    cx.export_function("print", print)?;
 
     Ok(())
 }

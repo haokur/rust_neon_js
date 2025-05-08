@@ -1,3 +1,5 @@
+import * as fs from "node:fs";
+
 const nativeNode = require("./index.node")
 
 console.log(nativeNode)
@@ -49,3 +51,19 @@ nativeNode.readFunction((...args:any[])=>{
         console.log(item);
     })
 })
+
+// 读取图片为 Buffer
+const imageBuffer = fs.readFileSync("./images.jpeg");
+
+// 转换为 base64 字符串
+const base64Image = imageBuffer.toString('base64');
+
+// 如果你想加上 MIME 类型前缀（通常用于 HTML 或前端）
+const dataUri = `data:image/jpeg;base64,${base64Image}`;
+
+setInterval(()=>{
+    console.time("printStart")
+    nativeNode.print("render",dataUri)
+    // nativeNode.print("main","good afternoon")
+    console.timeEnd("printStart")
+},3000)
